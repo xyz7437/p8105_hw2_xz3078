@@ -1,9 +1,44 @@
 ---
 title: "p8105_hw2_xz3078"
+author: Xinyi Zhou
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
-
+library(tidyverse)
+library(readxl)
 ```
+# Problem 1
+
+```{r}
+Trashwheel = 
+  read_excel("./data/Trashwheel.xlsx", sheet = 1, range = "A2:N535") %>%
+  janitor::clean_names() %>%
+  drop_na(dumpster) %>%
+  mutate(sports_balls = round(sports_balls, 0))
+Trashwheel
+```
+
+```{r}
+Precipitation_2018 = 
+  read_excel("./data/Trashwheel.xlsx", sheet = 7, range = "A2:B14") %>%
+  janitor::clean_names() %>%
+  mutate(year = 2018)
+
+Precipitation_2019 = 
+  read_excel("./data/Trashwheel.xlsx", sheet = 6, range = "A2:B14") %>%
+  janitor::clean_names() %>%
+  mutate(year = 2019)
+
+Precipitation_tidy = 
+  bind_rows(Precipitation_2018, Precipitation_2019) %>%
+  mutate(month = month.name[as.numeric(month)]) %>%
+  select(year, everything())
+Precipitation_tidy
+```
+
+The total number of observations in "Trashwheel" dataset is `r nrow(Trashwheel)`, with variable `r colnames(Trashwheel)`. The total number of observation in "Precipitation_tidy" dataset is `r nrow(Precipitation_tidy)`, with variable `r colnames(Precipitation_tidy)`.
+
+For available data, the total precipitation in 2018 is `r sum(pull(Precipitation_2018, total))`. The median number of sports balls in a dumpster in 2019 is `r median(pull(filter(Trashwheel, year == 2019), sports_balls))`. 
+
 
