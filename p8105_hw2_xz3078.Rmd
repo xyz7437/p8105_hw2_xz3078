@@ -9,6 +9,7 @@ library(tidyverse)
 library(readxl)
 library(lubridate)
 ```
+
 # Problem 1
 
 ```{r}
@@ -43,6 +44,7 @@ The total number of observations in "Trashwheel" dataset is `r nrow(Trashwheel)`
 For available data, the total precipitation in 2018 is `r sum(pull(Precipitation_2018, total))`. The median number of sports balls in a dumpster in 2019 is `r median(pull(filter(Trashwheel, year == 2019), sports_balls))`. 
 
 # Problem 2
+
 ```{r message = FALSE}
 pols_month = 
   read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>%
@@ -50,8 +52,7 @@ pols_month =
   mutate(month = month.name[as.numeric(month)], 
          year = as.numeric(year),
          president = recode(prez_dem, `0` = "gop", `1` = "dem")) %>%
-  select(-day, -prez_dem, -prez_gop) %>%
-  arrange(year, month) 
+  select(-day, -prez_dem, -prez_gop)
 pols_month
 ```
 
@@ -99,4 +100,33 @@ In the merged dataset "join_all", there are `r nrow(join_all)` observations and 
 
 # Problem 3
 
+```{r message = FALSE}
+names=
+  read_csv("./data/Popular_Baby_Names.csv") %>%
+  janitor::clean_names() %>%
+  mutate(ethnicity = recode(ethnicity, `WHITE NON HISP` = "WHITE NON HISPANIC", `ASIAN AND PACI` = "ASIAN AND PACIFIC ISLANDER", `BLACK NON HISP` = "BLACK NON HISPANIC")) %>%
+  distinct()
+```
+
+```{r}
+Olivia = 
+  filter(names, childs_first_name == "Olivia") %>%
+  select(-gender, -childs_first_name, -count) %>%
+  pivot_wider(names_from = "year_of_birth", values_from = "rank")
+Olivia
+```
+
+```{r}
+male_name = 
+  filter(names, gender == "MALE", rank == 1) %>%
+  select(-gender, -count, -rank) %>%
+  pivot_wider(names_from = "year_of_birth", values_from = "childs_first_name")
+male_name
+```
+
+```{r}
+male_white_2016 = 
+  filter(names, gender == "MALE", ethnicity == "WHITE NON HISPANIC", year_of_birth == 2016)
+ggplot(male_white_2016, aes(x = rank, y = count)) + geom_point() + ggtitle("counts of names vs. rank for male, white non-hispanic children born in 2016")
+```
 
